@@ -38,5 +38,5 @@ for e in source['sections']+source['entries']:
  for k,v in list(e.items()):
   if k not in ['path','id','section']:e[k]=' '.join(cache.get(p,p) for p in pieces(v))
 source['translation']={'method':'Argos Translate 1.9 zh-en-ru, local machine translation','source':'HowToLiveBetter offline export 2026-09-25, commit 8276cae'}
-(ROOT/'assets/advice.ru.json').write_text(json.dumps(source,ensure_ascii=False))
+(ROOT/'assets/archive/advice.machine.ru.json').write_text(json.dumps(source,ensure_ascii=False))
 print('DONE',flush=True)

@@ -2,7 +2,7 @@
 import json
 from pathlib import Path
 root=Path(__file__).resolve().parent.parent
-p=root/'assets/advice.ru.json'
+p=root/'assets/archive/advice.machine.ru.json'
 data=json.loads(p.read_text())
 original={e['id']:e for e in json.loads((root/'assets/advice.json').read_text())['entries']}
 titles=dict(line.split('|',1) for line in (root/'tools/titles.ru.txt').read_text().splitlines() if line)

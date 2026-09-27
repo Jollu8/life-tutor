@@ -1,0 +1,177 @@
+{
+  "emergency": {
+    "title": "МЧС России: номера и порядок вызова экстренных служб",
+    "url": "https://28.mchs.gov.ru/deyatelnost/press-centr/novosti/5753724",
+    "checkedAt": "2026-09-27"
+  },
+  "ambulance": {
+    "title": "МЧС России: когда и как вызывать скорую",
+    "url": "https://mchs.gov.ru/deyatelnost/bezopasnost-grazhdan/kak-pravilno-vyzvat-skoruyu_5",
+    "checkedAt": "2026-09-27"
+  },
+  "psych": {
+    "title": "Московская служба психологической помощи: контакты",
+    "url": "https://www.msph.ru/",
+    "checkedAt": "2026-09-27"
+  },
+  "fraud": {
+    "title": "Банк России: противодействие мошенничеству",
+    "url": "https://www.cbr.ru/information_security/pmp/",
+    "checkedAt": "2026-09-27"
+  },
+  "call": {
+    "title": "Банк России: звонки от имени банка",
+    "url": "https://www.cbr.ru/Reception/TopicalMessage/Page/8726",
+    "checkedAt": "2026-09-27"
+  },
+  "stolen": {
+    "title": "Банк России: операции без согласия клиента",
+    "url": "https://www.cbr.ru/faq/information_security/",
+    "checkedAt": "2026-09-27"
+  },
+  "ban": {
+    "title": "Банк России: самозапрет на потребительские кредиты",
+    "url": "https://cbr.ru/ckki/self-prohibition_credit/",
+    "checkedAt": "2026-09-27"
+  },
+  "credit": {
+    "title": "Банк России: как узнать кредитную историю",
+    "url": "https://www.cbr.ru/ckki/",
+    "checkedAt": "2026-09-27"
+  },
+  "tax": {
+    "title": "ФНС России: вычет на лечение",
+    "url": "https://www.nalog.gov.ru/rn77/fl/interest/tax_deduction/fl_medik/",
+    "checkedAt": "2026-09-27"
+  },
+  "benefit": {
+    "title": "Социальный фонд России: вопросы о едином пособии",
+    "url": "https://sfr.gov.ru/grazhdanam/semyam_s_detmi/edinoe_posobie/otvety_na_voprosy/",
+    "checkedAt": "2026-09-27"
+  },
+  "need": {
+    "title": "Социальный фонд России: оценка нуждаемости",
+    "url": "https://sfr.gov.ru/grazhdanam/semyam_s_detmi/edinoe_posobie/ocenka/",
+    "checkedAt": "2026-09-27"
+  },
+  "npd": {
+    "title": "ФНС России: условия налога на профессиональный доход",
+    "url": "https://npd.nalog.ru/",
+    "checkedAt": "2026-09-27"
+  },
+  "returns": {
+    "title": "Роспотребнадзор: возврат интернет-покупок",
+    "url": "https://zpp.rospotrebnadzor.ru/news/federal/572363",
+    "checkedAt": "2026-09-27"
+  },
+  "labor": {
+    "title": "Роструд: инструкция по обращению в инспекцию труда",
+    "url": "https://git09.rostrud.gov.ru/upload/iblock/420/instruktsiya.pdf",
+    "checkedAt": "2026-09-27"
+  },
+  "job": {
+    "title": "Центр занятости Москвы: запись на приём",
+    "url": "https://www.mos.ru/upload/documents/files/1911/Kakzapisatsyanapriyomvoflagmanskiecentri_1810.pdf",
+    "checkedAt": "2026-09-27"
+  },
+  "attach": {
+    "title": "Городская поликлиника № 8 Москвы: прикрепление",
+    "url": "https://gp8.mos.ru/vopros-otvet",
+    "checkedAt": "2026-09-27"
+  },
+  "appointment": {
+    "title": "Диагностический центр № 3 Москвы: запись и отмена приёма",
+    "url": "https://dc3.mos.ru/news/?show_news_id=1615",
+    "checkedAt": "2026-09-27"
+  },
+  "record": {
+    "title": "Городская поликлиника № 22 Москвы: электронная медкарта",
+    "url": "https://gp22.mos.ru/eip-news/?nid=gp22_69",
+    "checkedAt": "2026-09-27"
+  },
+  "screen": {
+    "title": "Городская поликлиника № 107 Москвы: диспансеризация",
+    "url": "https://gp107.mos.ru/clinical_examination/",
+    "checkedAt": "2026-09-27"
+  },
+  "oms": {
+    "title": "Московский городской фонд ОМС: страховые представители",
+    "url": "https://www.mgfoms.ru/chastnye-lica/zashita-prav/strakh-predstaviteli/",
+    "checkedAt": "2026-09-27"
+  },
+  "rights": {
+    "title": "Росздравнадзор: защита права на бесплатную медицинскую помощь",
+    "url": "https://roszdravnadzor.gov.ru/news/15073",
+    "checkedAt": "2026-09-27"
+  },
+  "gas": {
+    "title": "МОСГАЗ: действия при запахе газа",
+    "url": "https://www.mos-gaz.ru/individuals/reception/",
+    "checkedAt": "2026-09-27"
+  },
+  "longevity": {
+    "title": "Департамент соцзащиты Москвы: центр долголетия «Сокольники»",
+    "url": "https://dszn.ru/department/subordinate/2131",
+    "checkedAt": "2026-09-27"
+  },
+  "city": {
+    "title": "МОСГАЗ / новости Москвы: обращения на портал «Наш город»",
+    "url": "https://www.mos-gaz.ru/press-service/news-moscow/2026/06/30/9897",
+    "checkedAt": "2026-09-27"
+  },
+  "library": {
+    "title": "Сеченовский университет: городские библиотеки Москвы",
+    "url": "https://welcome.sechenov.ru/your-guide-to-russia/city-libraries/",
+    "checkedAt": "2026-09-27"
+  },
+  "windows": {
+    "title": "МЧС России: безопасность детей у окна",
+    "url": "https://73.mchs.gov.ru/deyatelnost/press-centr/novosti/5813487",
+    "checkedAt": "2026-09-27"
+  },
+  "water": {
+    "title": "МЧС по Московской области: безопасность детей у воды",
+    "url": "https://50.mchs.gov.ru/deyatelnost/press-centr/novosti/5772186",
+    "checkedAt": "2026-09-27"
+  },
+  "activity": {
+    "title": "ВОЗ: физическая активность",
+    "url": "https://www.who.int/ru/news-room/fact-sheets/detail/physical-activity",
+    "checkedAt": "2026-09-27"
+  },
+  "food": {
+    "title": "ВОЗ: здоровое питание",
+    "url": "https://www.who.int/ru/news-room/fact-sheets/detail/healthy-diet",
+    "checkedAt": "2026-09-27"
+  },
+  "tobacco": {
+    "title": "ВОЗ: табак и никотин",
+    "url": "https://www.who.int/ru/news-room/fact-sheets/detail/tobacco",
+    "checkedAt": "2026-09-27"
+  },
+  "road": {
+    "title": "ВОЗ: дорожная безопасность",
+    "url": "https://www.who.int/ru/news-room/fact-sheets/detail/road-traffic-injuries",
+    "checkedAt": "2026-09-27"
+  },
+  "sleep": {
+    "title": "CDC: продолжительность сна и привычки для сна",
+    "url": "https://www.cdc.gov/sleep/about/index.html",
+    "checkedAt": "2026-09-27"
+  },
+  "passwords": {
+    "title": "CISA: уникальные пароли и менеджеры паролей",
+    "url": "https://content.govdelivery.com/accounts/USDHSCISA/bulletins/3730a64",
+    "checkedAt": "2026-09-27"
+  },
+  "mfa": {
+    "title": "CISA: многофакторная аутентификация",
+    "url": "https://www.cisa.gov/audiences/small-and-medium-businesses/secure-your-business/require-multifactor-authentication",
+    "checkedAt": "2026-09-27"
+  },
+  "backup": {
+    "title": "CISA: резервные копии и защита от программ-вымогателей",
+    "url": "https://www.cisa.gov/stopransomware/ransomware-guide",
+    "checkedAt": "2026-09-27"
+  }
+}
