@@ -1,6 +1,9 @@
 'use strict';
 const $ = s => document.querySelector(s);
 const STORE = 'life-in-bloom:plan:v1';
+const READING_STORE = 'life-in-bloom:reading:v1';
+let reading = null, restoring = false;
+try { const value = JSON.parse(localStorage.getItem(READING_STORE)); if (value && typeof value.id === 'string' && ['all','plan'].includes(value.view)) reading = value; } catch {}
 const categories = {health:['1','2','16','24','28','33'],balance:['3','4','6','22','23','29'],money:['5','7','8','9','11','12','15','19','26','31','32'],family:['10','17','18','20','25','27','30'],safety:['13','14','21']};
 let data = {entries:[],sections:[]}, view = 'all', category = 'all', status = 'all', limit = 18, calendarEntry, toastTimer;
 let plan = {saved:{},custom:[]};
@@ -11,12 +14,12 @@ function save(){try{localStorage.setItem(STORE,JSON.stringify(plan));}catch{toas
 function element(tag, cls, text){const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el;}
 function clean(text=''){return text.replace(/\*\*/g,'').trim();}
 function sourceURL(entry){return entry.path?'https://github.com/eternity4719/HowToLiveBetter/blob/main/'+entry.path.split('/').map(encodeURIComponent).join('/'):'https://github.com/eternity4719/HowToLiveBetter';}
-function richText(text){const el=element('span');const re=/(https?:\/\/[^\s<>]+)|\[([^\]]+)\]\(([^)]+)\)/g;let last=0,m;while((m=re.exec(text))){el.append(document.createTextNode(clean(text.slice(last,m.index))));let url=m[1]||m[3],label=m[2]||url;url=url.replace(/[。；，;]+$/,'');if(!/^https?:\/\//i.test(url)){url='https://github.com/eternity4719/HowToLiveBetter/blob/main/'+url.replace(/^(\.\.?\/)+/,'');}const a=element('a','',label);a.href=url;a.target='_blank';a.rel='noopener noreferrer';el.append(a);last=re.lastIndex;}el.append(document.createTextNode(clean(text.slice(last))));return el;}
+function richText(text){const el=element('span');const re=/(https?:\/\/[^\s<>]+)|\[([^\]]+)\]\(([^)]+)\)/g;let last=0,m;while((m=re.exec(text))){el.append(document.createTextNode(text.slice(last,m.index).replace(/\*\*/g,'')));let url=m[1]||m[3],label=m[2]||url;url=url.replace(/[。；，;]+$/,'');if(!/^https?:\/\//i.test(url)){url='https://github.com/eternity4719/HowToLiveBetter/blob/main/'+url.replace(/^(\.\.?\/)+/,'');}const a=element('a','',label);a.href=url;a.target='_blank';a.rel='noopener noreferrer';el.append(a);last=re.lastIndex;}el.append(document.createTextNode(text.slice(last).replace(/\*\*/g,'')));return el;}
 const calendarIcon='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M8 3v4m8-4v4M4 10h16m-11 4h2m2 0h2m-6 3h2"/></svg>';
 function card(entry){const saved=Object.hasOwn(plan.saved,entry.id),done=plan.saved[entry.id]===true;const article=element('article','card'+(done?' done':''));article.dataset.id=entry.id;
  const head=element('div','card-head'),meta=element('div','card-meta');meta.append(element('span','',data.sections.find(s=>s.id===entry.section)?.title||'Мой маленький шаг'));if(entry.evidence){const badge=element('span','evidence',entry.evidence.charAt(0));badge.title='Уровень доказательности: '+({A:'количественные исследования',B:'ограниченные данные',C:'опыт или консенсус'}[entry.evidence.charAt(0)]||entry.evidence);meta.append(badge);}head.append(meta,element('h3','',clean(entry.title)));article.append(head);
- const body=element('div','card-body');if(entry.summary||entry.benefit)body.append(element('p','card-summary',clean(entry.summary||entry.benefit)));if(entry.cost)body.append(element('div','card-cost','Затраты · '+clean(entry.cost)));
- if(entry.path){const details=element('details');details.append(element('summary','','Подробнее и источники'));for(const [key,label] of [['summary','Простыми словами'],['benefit','Польза'],['evidence','Доказательность'],['notes','Что важно учесть'],['sources','Источники']]){if(entry[key]){const part=element('div','detail-item');part.append(element('strong','',label),richText(entry[key]));details.append(part);}}const original=element('a','','Оригинал на китайском ↗');original.href=sourceURL(entry);original.target='_blank';original.rel='noopener noreferrer';details.append(original);body.append(details);}article.append(body);
+ const body=element('div','card-body');if(entry.path&&!['1-1','1-2','1-3','1-4','1-5','1-6'].includes(entry.id))body.append(element('div','translation-label','Машинный перевод пояснения'));if(entry.summary||entry.benefit)body.append(element('p','card-summary',clean(entry.summary||entry.benefit)));if(entry.cost)body.append(element('div','card-cost','Затраты · '+clean(entry.cost)));
+ if(entry.path){const details=element('details');details.append(element('summary','','Подробнее и источники'));details.append(element('p','translation-label','Пояснения ниже — машинный перевод. Возможны ошибки в формулировках, числах и денежных единицах. Сверяйтесь с оригиналом.'));for(const [key,label] of [['summary','Простыми словами'],['benefit','Польза'],['evidence','Доказательность'],['notes','Что важно учесть'],['sources','Источники']]){if(entry[key]){const part=element('div','detail-item');part.append(element('strong','',label),richText(entry[key]));details.append(part);}}const original=element('a','','Оригинал на китайском ↗');original.href=sourceURL(entry);original.target='_blank';original.rel='noopener noreferrer';details.append(original);body.append(details);}article.append(body);
  const foot=element('div','card-footer');if(view==='plan'){const label=element('label','done-label');const checkbox=element('input');checkbox.type='checkbox';checkbox.checked=done;checkbox.setAttribute('aria-label','Выполнено: '+entry.title);checkbox.addEventListener('change',()=>{plan.saved[entry.id]=checkbox.checked;save();render();});label.append(checkbox,document.createTextNode(done?'Готово!':'Сделано'));foot.append(label);const remove=element('button','icon-button','×');remove.type='button';remove.title='Убрать из плана';remove.setAttribute('aria-label','Убрать из плана: '+entry.title);remove.addEventListener('click',()=>{delete plan.saved[entry.id];plan.custom=plan.custom.filter(e=>e.id!==entry.id);save();render();});foot.append(remove);}else{const add=element('button','save-button'+(saved?' saved':''),saved?'✓ В моём плане':'+ В мой план');add.type='button';add.setAttribute('aria-pressed',String(saved));add.addEventListener('click',()=>{if(Object.hasOwn(plan.saved,entry.id)){delete plan.saved[entry.id];add.textContent='+ В мой план';add.classList.remove('saved');add.setAttribute('aria-pressed','false');article.classList.remove('done');}else{plan.saved[entry.id]=false;add.textContent='✓ В моём плане';add.classList.add('saved');add.setAttribute('aria-pressed','true');toast('Добавлено в ваш план. Начните, когда будете готовы.');}save();});foot.append(add);}
  const calendar=element('button','icon-button calendar-button');calendar.type='button';calendar.innerHTML=calendarIcon;calendar.title='В календарь';calendar.setAttribute('aria-label','В календарь: '+entry.title);calendar.addEventListener('click',()=>openCalendar(entry));foot.append(calendar);article.append(foot);return article;
 }
@@ -42,5 +45,41 @@ for(const type of ['category','status'])document.querySelectorAll(`[data-${type}
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
 let searchTimer;$('#search').addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{limit=18;render();},150);});for(const s of ['#section','#evidence'])$(s).addEventListener('change',()=>{limit=18;render();});$('#reset').addEventListener('click',()=>{resetFilters();render();});$('#load-more').addEventListener('click',()=>{const count=$('#cards').children.length;limit+=18;render();const next=$('#cards').children[count];if(next){next.tabIndex=-1;next.focus({preventScroll:true});}});
 window.addEventListener('storage',e=>{if(e.key===STORE){try{const p=JSON.parse(e.newValue);if(validPlan(p)){plan=p;render();}}catch{}}});
-async function init(){try{const response=await fetch('assets/advice.ru.json');if(!response.ok)throw Error('HTTP '+response.status);data=await response.json();for(const section of data.sections){const option=element('option','',section.title);option.value=section.id;$('#section').append(option);}render();}catch(error){$('#result-count').textContent='Не удалось загрузить советы';$('#empty').hidden=false;$('#empty-message').textContent='Проверьте подключение и обновите страницу. Личный план остаётся в вашем браузере.';$('#reset').textContent='Попробовать снова';$('#reset').onclick=()=>location.reload();console.error(error);}}
+async function init(){try{const response=await fetch('assets/advice.ru.json');if(!response.ok)throw Error('HTTP '+response.status);data=await response.json();for(const section of data.sections){const option=element('option','',section.title);option.value=section.id;$('#section').append(option);}render();showReading();}catch(error){$('#result-count').textContent='Не удалось загрузить советы';$('#empty').hidden=false;$('#empty-message').textContent='Проверьте подключение и обновите страницу. Личный план остаётся в вашем браузере.';$('#reset').textContent='Попробовать снова';$('#reset').onclick=()=>location.reload();console.error(error);}}
+function rememberReading(){
+ if(restoring || !data.entries.length)return;
+ const visible=[...document.querySelectorAll('.card')].filter(c=>{const r=c.getBoundingClientRect();return r.bottom>60 && r.top<innerHeight*.7;});
+ if(!visible.length)return;
+ const anchor=visible.find(c=>c.getBoundingClientRect().top>=0)||visible[0];
+ const snapshot={id:anchor.dataset.id,view,category,status,query:$('#search').value,section:$('#section').value,evidence:$('#evidence').value,limit,open:[...document.querySelectorAll('.card details[open]')].map(d=>d.closest('.card').dataset.id),offset:Math.round(anchor.getBoundingClientRect().top),updatedAt:new Date().toISOString()};
+ try{localStorage.setItem(READING_STORE,JSON.stringify(snapshot));}catch{}
+}
+function showReading(){
+ if(!reading)return;
+ const entry=[...data.entries,...plan.custom].find(e=>e.id===reading.id);
+ if(!entry || (reading.view==='plan' && !Object.hasOwn(plan.saved,entry.id)))return;
+ $('#resume-title').textContent=clean(entry.title);
+ $('#resume-reading').hidden=false;
+}
+$('#resume-button').addEventListener('click',()=>{
+ if(!reading)return;restoring=true;
+ view=reading.view;category=reading.category==='all'||Object.hasOwn(categories,reading.category)?reading.category:'all';status=['all','pending','done'].includes(reading.status)?reading.status:'all';
+ $('#search').value=typeof reading.query==='string'?reading.query:'';$('#section').value=reading.section||'';$('#evidence').value=reading.evidence||'';
+ limit=Math.min(Math.max(Number(reading.limit)||18,18),data.entries.length+plan.custom.length);
+ document.querySelectorAll('[data-view]').forEach(b=>{b.classList.toggle('active',b.dataset.view===view);b.setAttribute('aria-pressed',String(b.dataset.view===view));});
+ document.querySelectorAll('[data-category]').forEach(b=>b.classList.toggle('active',b.dataset.category===category));
+ document.querySelectorAll('[data-status]').forEach(b=>b.classList.toggle('active',b.dataset.status===status));
+ $('#plan-tools').hidden=view!=='plan';$('#view-title').textContent=view==='plan'?'Маленькие шаги, ваш ритм.':'Что сделаем для себя?';
+ render();
+ let anchor=[...document.querySelectorAll('.card')].find(c=>c.dataset.id===reading.id);
+ if(!anchor){resetFilters();limit=data.entries.length+plan.custom.length;render();anchor=[...document.querySelectorAll('.card')].find(c=>c.dataset.id===reading.id);}
+ for(const card of document.querySelectorAll('.card')){if(Array.isArray(reading.open)&&reading.open.includes(card.dataset.id)){const details=card.querySelector('details');if(details)details.open=true;}}
+ $('#resume-reading').hidden=true;
+ requestAnimationFrame(()=>{if(anchor){anchor.tabIndex=-1;anchor.focus({preventScroll:true});const offset=Number.isFinite(reading.offset)?Math.max(-anchor.offsetHeight+100,Math.min(reading.offset,innerHeight/2)):24;window.scrollTo({top:scrollY+anchor.getBoundingClientRect().top-offset,behavior:'instant'});}restoring=false;rememberReading();});
+});
+let readingTimer;
+addEventListener('scroll',()=>{clearTimeout(readingTimer);readingTimer=setTimeout(rememberReading,250);},{passive:true});
+document.addEventListener('toggle',event=>{if(event.target.matches('.card details')){clearTimeout(readingTimer);readingTimer=setTimeout(rememberReading,250);}},true);
+addEventListener('pagehide',rememberReading);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')rememberReading();});
 updateProgress();init();
