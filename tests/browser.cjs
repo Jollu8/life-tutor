@@ -22,6 +22,29 @@ const store = 'life-in-bloom:plan:v1', bookmark = 'life-in-bloom:reading:v1';
     }
     await page.setViewportSize({ width: 390, height: 844 });
     assert.ok((await page.locator('.card').first().boundingBox()).y < 620, 'compact mobile layout');
+    // Rotate with expanded content: both cards and their contents must stay apart.
+    await page.locator('.card details').first().evaluate(el => { el.open = true; });
+    for (const [width, height] of [[844, 390], [390, 844], [667, 375], [375, 667], [1024, 768], [320, 568]]) {
+      await page.setViewportSize({ width, height });
+      const overlaps = await page.locator('.card').evaluateAll(cards => {
+        const issues = [];
+        const rects = cards.map(card => card.getBoundingClientRect());
+        rects.forEach((a, i) => {
+          rects.slice(i + 1).forEach(b => {
+            if (Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1 &&
+                Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1) issues.push(cards[i].dataset.id);
+          });
+          const parts = [...cards[i].children].map(el => el.getBoundingClientRect());
+          if (parts.some((part, j) => j && part.top < parts[j - 1].bottom - 1)) issues.push(`contents: ${cards[i].dataset.id}`);
+          if (parts.some(part => part.bottom > a.bottom + 1)) issues.push(`height: ${cards[i].dataset.id}`);
+        });
+        return issues;
+      });
+      assert.deepEqual(overlaps, [], `overlapping cards after rotation to ${width}x${height}`);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `rotation overflow at ${width}`);
+    }
+    await page.locator('.card details').first().evaluate(el => { el.open = false; });
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.locator('#region').selectOption('moscow');
     assert.equal(await page.locator('.card').count(), Math.min(18, content.entries.filter(e => e.region === 'moscow').length));
     assert.ok((await page.locator('.region-badge').allTextContents()).every(t => t === 'Москва'));
