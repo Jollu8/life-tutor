@@ -125,17 +125,23 @@ edit('21-11','Оставьте близкому маршрут поездки','
 edit('22-10','Запланируйте встречу с близким человеком','Не обязательно ждать особого повода, чтобы провести время вместе.','Предложите конкретный день и простой формат: прогулку, чай или звонок.')
 edit('23-14','Проверьте себя без подсказок','После небольшого учебного блока попробуйте объяснить материал своими словами.','Запишите несколько вопросов, ответьте без конспекта и затем проверьте ошибки.')
 edit('23-15','Разнесите повторение по нескольким дням','Попробуйте возвращаться к материалу небольшими подходами.','Поставьте несколько коротких повторений в календарь и измените интервалы под свою задачу.')
-# Build a complete disposition index; withheld records never leak into the main feed.
+# Restore every original topic with individually edited Russian text.
+import runpy
+runpy.run_path(str(ROOT/'content/restore.py'))['restore'](ROOT, entries, S, original)
+# Retain the legacy index contract; no original cards remain withheld.
 ids={e['id'] for e in entries}
 assert len(ids)==len(entries)
 used={e['section'] for e in entries}
-sections=[s for s in old['sections'] if s['id'] in used]
+sections=[dict(s) for s in old['sections'] if s['id'] in used]
+for section in sections:
+ if section['id']=='9': section['title']='Правовые границы и ответственность'
+ if section['id']=='26': section['title']='Сайты и платформы'
 archived=[{'id':e['id'],'section':e['section'],'title':e['title'],'path':e['path'],'status':'archived','reason':'Совет исключён из основной подборки: российская применимость или качество перевода не подтверждены.'} for e in old['entries'] if e['id'] not in ids]
 # Prioritize a useful mix of Moscow, national and general cards at the top.
 featured=['13-0','24-13','1-1','8-44','2-11','1-25','14-1','5-2','4-1','6-18','8-2','18-1']
 order={id:i for i,id in enumerate(featured)}
-entries.sort(key=lambda e:order.get(e['id'],len(featured)))
-result={'edition':'russia-moscow','version':2,'reviewedAt':DATE,'sections':sections,'entries':entries,'archive':archived,'sourceCount':len(original),'policy':'Российская редакция. Общие практические идеи отделены от официальных правил и рекомендаций. Непроверенные записи исходника находятся только в архиве.'}
+entries.sort(key=lambda e:(order.get(e['id'],len(featured)), *map(int,e['id'].split('-'))))
+result={'edition':'russia-moscow','version':3,'reviewedAt':'2026-09-29','sections':sections,'entries':entries,'archive':archived,'sourceCount':len(original),'policy':'Российская редакция. Общие практические идеи отделены от официальных правил и рекомендаций. Все 608 исходных советов восстановлены в самостоятельной адаптации; добавлены 11 локальных карточек. Справочные ссылки не означают одобрения текста ведомством.'}
 (ROOT/'assets/advice.ru.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
 (ROOT/'content/sources.json').write_text(json.dumps(S,ensure_ascii=False,indent=2)+'\n')
 print('Published:',len(entries),'Moscow:',sum(e['region']=='moscow' for e in entries),'Russia:',sum(e['region']=='russia' for e in entries),'general:',sum(e['region']=='general' for e in entries),'archive:',len(archived),'topics:',len(sections))

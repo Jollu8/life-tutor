@@ -11,7 +11,7 @@ const categories = {
   safety: ['13', '14', '21'],
 };
 const regionNames = { general: 'Общее', russia: 'Россия', moscow: 'Москва' };
-const basisNames = { official: 'Официальный источник', guidance: 'Рекомендации организаций', editorial: 'Практическая идея' };
+const basisNames = { official: 'Официальный источник', guidance: 'Рекомендации организаций', editorial: 'Практическая идея', adaptation: 'Редакционная адаптация' };
 let data = { entries: [], sections: [], archive: [] };
 let view = 'all', category = 'all', status = 'all', limit = 18;
 let calendarEntry, toastTimer, readingTimer, searchTimer;
@@ -91,8 +91,9 @@ function card(entry) {
     for (const [key, label] of [['steps', 'Первый шаг'], ['notes', 'Что учесть']]) {
       if (entry[key]) { const block = element('div', 'detail-item'); block.append(element('strong', '', label), document.createTextNode(entry[key])); details.append(block); }
     }
-    details.append(element('p', 'review-meta', `${basisNames[entry.basis]} · Редакционная проверка ${dateLabel(entry.reviewedAt)}`));
+    details.append(element('p', 'review-meta', `${basisNames[entry.basis]} · Обновлено ${dateLabel(entry.reviewedAt)}`));
     if (entry.basis === 'editorial') details.append(element('p', 'review-meta', 'Авторская практическая идея. Научная оценка эффективности не заявляется.'));
+    if (entry.referenceContext && entry.references?.length) details.append(element('p', 'review-meta', entry.referenceContext));
     if (entry.references?.length) {
       const list = element('ul', 'source-list');
       for (const reference of entry.references) { const li = element('li'); li.append(link(reference.title + ' ↗', reference.url)); list.append(li); }
@@ -289,12 +290,12 @@ addEventListener('pagehide', rememberReading);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') rememberReading(); });
 async function init() {
   try {
-    const response = await fetch('assets/advice.ru.json?v=ru-moscow-1'); if (!response.ok) throw Error('HTTP ' + response.status);
+    const response = await fetch('assets/advice.ru.json?v=ru-full-608-1'); if (!response.ok) throw Error('HTTP ' + response.status);
     const loaded = await response.json(); if (loaded.edition !== 'russia-moscow' || !loaded.entries.length) throw Error('Wrong content edition');
     data = loaded;
     for (const section of data.sections) { const option = element('option', '', section.title); option.value = section.id; $('#section').append(option); }
     $('#edition-count').textContent = data.entries.length; $('#topic-count').textContent = data.sections.length;
-    $('#archive-summary').textContent = `В оригинале ${data.sourceCount} советов. Сейчас в российской редакции ${data.entries.length}; ${data.archive.length} исходных записей исключены из основной выдачи. Проверка источников: ${dateLabel(data.reviewedAt)}.`;
+    $('#archive-summary').textContent = `Все ${data.sourceCount} исходных советов адаптированы и доступны. Ещё ${data.entries.length - data.sourceCount} карточек добавлены для России и Москвы — всего ${data.entries.length} в ${data.sections.length} темах. Обновлено: ${dateLabel(data.reviewedAt)}.`;
     render(); showReading();
   } catch (error) {
     $('#result-count').textContent = 'Не удалось загрузить советы'; $('#empty').hidden = false;

@@ -173,5 +173,150 @@
     "title": "CISA: резервные копии и защита от программ-вымогателей",
     "url": "https://www.cisa.gov/stopransomware/ransomware-guide",
     "checkedAt": "2026-09-27"
+  },
+  "legalhelp": {
+    "title": "Минюст: бесплатная юридическая помощь",
+    "url": "https://minjust.gov.ru/ru/pages/besplatnaya-yuridicheskaya-pomosh/",
+    "checkedAt": "2026-09-29"
+  },
+  "civil": {
+    "title": "Гражданский кодекс РФ — текст в КонсультантПлюс",
+    "url": "https://www.consultant.ru/document/cons_doc_LAW_5142/",
+    "checkedAt": "2026-09-29"
+  },
+  "criminal": {
+    "title": "Уголовный кодекс РФ — текст в КонсультантПлюс",
+    "url": "https://www.consultant.ru/document/cons_doc_LAW_10699/",
+    "checkedAt": "2026-09-29"
+  },
+  "workcode": {
+    "title": "Трудовой кодекс РФ — текст в КонсультантПлюс",
+    "url": "https://www.consultant.ru/document/cons_doc_LAW_34683/",
+    "checkedAt": "2026-09-29"
+  },
+  "familycode": {
+    "title": "Семейный кодекс РФ — текст в КонсультантПлюс",
+    "url": "https://www.consultant.ru/document/cons_doc_LAW_8982/",
+    "checkedAt": "2026-09-29"
+  },
+  "registration": {
+    "title": "ФНС: регистрация бизнеса",
+    "url": "https://www.nalog.gov.ru/create_business/ip/creation/registration/",
+    "checkedAt": "2026-09-29"
+  },
+  "company": {
+    "title": "ФНС: регистрация юридического лица и проверка реестров",
+    "url": "https://www.nalog.gov.ru/rn77/yul/interest/reg_yl/",
+    "checkedAt": "2026-09-29"
+  },
+  "rehab": {
+    "title": "СФР: технические средства реабилитации и ИПРА",
+    "url": "https://sfr.gov.ru/branches/kchr/info/~2026/07/29/8801?info_category=1",
+    "checkedAt": "2026-09-29"
+  },
+  "consulate": {
+    "title": "МИД: советы российским гражданам перед поездкой",
+    "url": "https://www.kdmid.ru/info-for-traveling-abroad/useful-tips-for-russian-citizens-traveling-abroad/",
+    "checkedAt": "2026-09-29"
+  },
+  "drone": {
+    "title": "Москва: памятка об ограничениях запуска дронов",
+    "url": "https://www.mos.ru/upload/documents/files/9159/pamyatkadroni.pdf",
+    "checkedAt": "2026-09-29"
+  },
+  "stroke": {
+    "title": "NHS: признаки инсульта (англ.; в России звоните 103)",
+    "url": "https://www.nhs.uk/conditions/stroke/symptoms/",
+    "checkedAt": "2026-09-29"
+  },
+  "burns": {
+    "title": "NHS: ожоги (англ.; экстренные номера относятся к Великобритании)",
+    "url": "https://www.nhs.uk/conditions/burns-and-scalds/",
+    "checkedAt": "2026-09-29"
+  },
+  "poisoning": {
+    "title": "NHS: отравления (англ.; в России звоните 103)",
+    "url": "https://www.nhs.uk/conditions/poisoning/",
+    "checkedAt": "2026-09-29"
+  },
+  "rabies": {
+    "title": "NHS: бешенство и помощь после контакта (англ.)",
+    "url": "https://www.nhs.uk/conditions/rabies/",
+    "checkedAt": "2026-09-29"
+  },
+  "hiv": {
+    "title": "NHS: ВИЧ, тестирование и срочная профилактика (англ.)",
+    "url": "https://www.nhs.uk/conditions/hiv-and-aids/",
+    "checkedAt": "2026-09-29"
+  },
+  "sids": {
+    "title": "NHS: безопасный сон младенца (англ.)",
+    "url": "https://www.nhs.uk/baby/caring-for-a-newborn/sudden-infant-death-syndrome-sids/",
+    "checkedAt": "2026-09-29"
+  },
+  "folate": {
+    "title": "NHS: витамины при беременности (англ.)",
+    "url": "https://www.nhs.uk/pregnancy/keeping-well/pregnancy-vitamins-and-supplements/",
+    "checkedAt": "2026-09-29"
+  },
+  "alcohol": {
+    "title": "NHS: расстройство, связанное с алкоголем (англ.)",
+    "url": "https://www.nhs.uk/conditions/alcohol-use-disorder/",
+    "checkedAt": "2026-09-29"
+  },
+  "vaccines": {
+    "title": "Роспотребнадзор: национальный календарь и вакцинация",
+    "url": "https://06.rospotrebnadzor.ru/node/11601",
+    "checkedAt": "2026-09-29"
+  },
+  "ukhealth": {
+    "title": "GOV.UK: медицинский сбор при иммиграционном заявлении (англ.)",
+    "url": "https://www.gov.uk/healthcare-immigration-application",
+    "checkedAt": "2026-09-29"
+  },
+  "australia": {
+    "title": "Home Affairs: условия студенческой визы Австралии (англ.)",
+    "url": "https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/student-500",
+    "checkedAt": "2026-09-29"
+  },
+  "cpr": {
+    "title": "St John Ambulance: Сердечно-лёгочная реанимация (англ.; в России звоните 112/103)",
+    "url": "https://www.sja.org.uk/first-aid-advice/cpr/",
+    "checkedAt": "2026-09-29"
+  },
+  "bleeding": {
+    "title": "St John Ambulance: Сильное кровотечение (англ.; в России звоните 112/103)",
+    "url": "https://www.sja.org.uk/first-aid-advice/severe-bleeding/",
+    "checkedAt": "2026-09-29"
+  },
+  "anaphylaxis": {
+    "title": "St John Ambulance: Анафилаксия (англ.; в России звоните 112/103)",
+    "url": "https://www.sja.org.uk/first-aid-advice/anaphylaxis/",
+    "checkedAt": "2026-09-29"
+  },
+  "diabetes": {
+    "title": "St John Ambulance: Неотложные состояния при диабете (англ.; в России звоните 112/103)",
+    "url": "https://www.sja.org.uk/first-aid-advice/diabetes/",
+    "checkedAt": "2026-09-29"
+  },
+  "electric": {
+    "title": "St John Ambulance: Поражение электрическим током (англ.; в России звоните 112/103)",
+    "url": "https://www.sja.org.uk/first-aid-advice/electrocution/",
+    "checkedAt": "2026-09-29"
+  },
+  "heat": {
+    "title": "St John Ambulance: Тепловой удар (англ.; в России звоните 112/103)",
+    "url": "https://www.sja.org.uk/first-aid-advice/heatstroke/",
+    "checkedAt": "2026-09-29"
+  },
+  "fracture": {
+    "title": "St John Ambulance: Переломы (англ.; в России звоните 112/103)",
+    "url": "https://www.sja.org.uk/first-aid-advice/fractures-and-broken-bones/",
+    "checkedAt": "2026-09-29"
+  },
+  "head": {
+    "title": "St John Ambulance: Травма головы (англ.; в России звоните 112/103)",
+    "url": "https://www.sja.org.uk/first-aid-advice/head-injury/",
+    "checkedAt": "2026-09-29"
   }
 }

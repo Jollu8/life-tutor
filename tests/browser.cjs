@@ -23,7 +23,7 @@ const store = 'life-in-bloom:plan:v1', bookmark = 'life-in-bloom:reading:v1';
     await page.setViewportSize({ width: 390, height: 844 });
     assert.ok((await page.locator('.card').first().boundingBox()).y < 620, 'compact mobile layout');
     await page.locator('#region').selectOption('moscow');
-    assert.equal(await page.locator('.card').count(), content.entries.filter(e => e.region === 'moscow').length);
+    assert.equal(await page.locator('.card').count(), Math.min(18, content.entries.filter(e => e.region === 'moscow').length));
     assert.ok((await page.locator('.region-badge').allTextContents()).every(t => t === 'Москва'));
     await page.locator('.card').first().locator('summary').click();
     assert.ok(await page.locator('.source-list a').first().getAttribute('href'));
@@ -65,8 +65,24 @@ const store = 'life-in-bloom:plan:v1', bookmark = 'life-in-bloom:reading:v1';
     const rect = await page.locator(`.card[data-id="${targetID}"]`).boundingBox(); assert.ok(rect.y >= -10 && rect.y < 844);
     assert.equal(await page.locator('a[href="https://jollu8.github.io"]').count(), 1);
     assert.equal(await page.locator('a[href="https://t.me/jollu8"]').count(), 1);
+    // Exercise the complete collection, not just its first page.
+    await page.locator('[data-view=all]').click();
+    assert.equal(await page.locator('#section option').count(), 34);
+    for (const topic of content.sections) {
+      await page.locator('#section').selectOption(topic.id);
+      const expected = content.entries.filter(e => e.section === topic.id).length;
+      assert.equal(await page.locator('#result-count').textContent(), `Найдено: ${expected}`);
+      assert.ok(await page.locator('.card').count() > 0, `empty topic ${topic.id}`);
+    }
+    await page.locator('[data-view=all]').click();
+    while (await page.locator('#load-more').isVisible()) await page.locator('#load-more').click();
+    const allIDs = await page.locator('.card').evaluateAll(nodes => nodes.map(n => n.dataset.id));
+    assert.equal(allIDs.length, 619);
+    assert.equal(new Set(allIDs).size, 619);
+    assert.deepEqual(new Set(allIDs), new Set(content.entries.map(e => e.id)));
+    assert.equal(await page.locator('.card').last().locator('h3').textContent(), content.entries.at(-1).title);
     assert.deepEqual(errors, []);
-    // Migration from the old 608-record edition: withdrawn records remain visible in the plan.
+    // All original IDs now resolve to full cards without losing old checks or bookmarks.
     const legacyContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
     await legacyContext.addInitScript(({store,bookmark}) => {
       if (!localStorage.getItem('migration-test-seeded')) {
@@ -77,18 +93,28 @@ const store = 'life-in-bloom:plan:v1', bookmark = 'life-in-bloom:reading:v1';
     }, {store,bookmark});
     const oldPage = await legacyContext.newPage(); await oldPage.goto(url); await oldPage.waitForSelector('.card');
     assert.equal(await oldPage.locator('#plan-count').textContent(), '3');
-    assert.ok((await oldPage.locator('#resume-title').textContent()).includes('В архиве'));
+    assert.ok(!(await oldPage.locator('#resume-title').textContent()).includes('В архиве'));
+    assert.ok((await oldPage.locator('#resume-title').textContent()).includes('органа'));
     await oldPage.locator('#resume-button').click();
-    assert.equal(await oldPage.locator('.archived').count(), 1); assert.equal(await oldPage.locator('.calendar-button').count(), 0);
+    assert.equal(await oldPage.locator('.archived').count(), 0);
+    assert.equal(await oldPage.locator('.card[data-id="1-35"] details').getAttribute('open'), '');
     assert.equal(await oldPage.locator('#evidence').inputValue(), '');
     await oldPage.locator('[data-view=plan]').click();
-    assert.equal(await oldPage.locator('.card').count(), 3); assert.equal(await oldPage.locator('.archived').count(), 1);
+    assert.equal(await oldPage.locator('.card').count(), 3); assert.equal(await oldPage.locator('.archived').count(), 0);
     assert.equal(await oldPage.locator('.card[data-id="1-1"] input').isChecked(), true);
     assert.equal(await oldPage.locator('.card[data-id="custom-legacy"] input').isChecked(), true);
-    assert.equal(await oldPage.locator('.archived .calendar-button').count(), 0);
+    assert.equal(await oldPage.locator('.card[data-id="1-35"] input').isChecked(), false);
+    assert.equal(await oldPage.locator('.card[data-id="1-35"] .calendar-button').count(), 1);
     const value = await oldPage.evaluate(key => JSON.parse(localStorage.getItem(key)), store);
     assert.deepEqual(value.saved, {'1-1':true,'1-35':false,'custom-legacy':true});
     await oldPage.reload(); await oldPage.waitForSelector('.card'); assert.equal(await oldPage.locator('#plan-count').textContent(), '3');
-    console.log('PASS: localized feed, region/source filters, 4 widths, tasks, backup, ICS, reading resume, legacy bookmark and archived-task migration; no browser errors.');
+    // An unrecognised legacy ID must still retain its completion state.
+    await oldPage.evaluate(key => localStorage.setItem(key, JSON.stringify({saved:{'99-99':true},custom:[]})), store);
+    await oldPage.reload(); await oldPage.waitForSelector('.card');
+    await oldPage.locator('[data-view=plan]').click();
+    assert.equal(await oldPage.locator('.archived').count(), 1);
+    assert.equal(await oldPage.locator('.archived input').isChecked(), true);
+    assert.equal(await oldPage.locator('.archived .calendar-button').count(), 0);
+    console.log('PASS: localized feed, region/source filters, 4 widths, tasks, backup, ICS, reading resume, all 608 IDs restored, legacy bookmark and task migration; no browser errors.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exit(1); });
