@@ -14,6 +14,13 @@ const regionNames = { general: 'Общее', russia: 'Россия', moscow: 'М
 const basisNames = { official: 'Официальный источник', guidance: 'Рекомендации организаций', editorial: 'Практическая идея', adaptation: 'Редакционная адаптация' };
 let data = { entries: [], sections: [], archive: [] };
 let view = 'all', category = 'all', status = 'all', limit = 18;
+const starters = {
+  time: { title: 'Освободить время', ids: ['3-5', '3-7', '4-6'] },
+  digital: { title: 'Защитить важное в телефоне', ids: ['14-1', '14-2', '14-10'] },
+  momentum: { title: 'Сдвинуть дело с места', ids: ['4-1', '4-7', '4-8'] },
+};
+let starter = '', linkedID = '';
+const expandedCards = new Set();
 let calendarEntry, toastTimer, readingTimer, searchTimer;
 let reading = null, restoring = false, archivedReading = null;
 let plan = { saved: {}, custom: [] };
@@ -75,7 +82,7 @@ function card(entry) {
   const saved = Object.hasOwn(plan.saved, entry.id), done = plan.saved[entry.id] === true;
   const archived = entry.status === 'archived';
   const article = element('article', 'card' + (done ? ' done' : '') + (archived ? ' archived' : ''));
-  article.dataset.id = entry.id;
+  article.dataset.id = entry.id; article.tabIndex = -1;
   const head = element('div', 'card-head'), meta = element('div', 'card-meta');
   meta.append(element('span', '', data.sections.find(s => s.id === entry.section)?.title || (archived ? 'Сохранённый совет' : 'Мой маленький шаг')));
   if (entry.region || archived) meta.append(element('span', 'region-badge', archived ? 'Архив' : regionNames[entry.region]));
@@ -132,6 +139,15 @@ function card(entry) {
   if (archived && view !== 'plan') {
     const back = element('button', 'subtle', 'К актуальным советам'); back.addEventListener('click', () => { archivedReading = null; resetFilters(); render(); }); foot.append(back);
   }
+  if (entry.status === 'published') {
+    const share = element('button', 'subtle share-button', 'Поделиться'); share.type = 'button';
+    share.setAttribute('aria-label', 'Поделиться: ' + entry.title);
+    share.addEventListener('click', async () => {
+      const url = new URL(location.href); url.hash = 'advice=' + entry.id;
+      try { await navigator.clipboard.writeText(url.href); toast('Ссылка на совет скопирована.'); }
+      catch { window.prompt('Скопируйте ссылку на совет:', url.href); }
+    }); foot.append(share);
+  }
   article.append(foot); return article;
 }
 function updateProgress() {
@@ -141,9 +157,19 @@ function updateProgress() {
   $('#progress').max = ids.length || 1; $('#progress').value = done;
 }
 function render() {
+  const oldCards = [...$('#cards').children];
+  for (const node of oldCards) {
+    if (node.querySelector('details')?.open) expandedCards.add(node.dataset.id);
+    else expandedCards.delete(node.dataset.id);
+  }
+  const active = document.activeElement, activeCard = active?.closest('.card');
+  const focusables = 'button, input, summary, a';
+  const focusIndex = activeCard ? [...activeCard.querySelectorAll(focusables)].indexOf(active) : -1;
+  const oldIndex = oldCards.indexOf(activeCard);
+
   const query = $('#search').value.trim().toLocaleLowerCase('ru'), section = $('#section').value;
   const basis = $('#evidence').value, region = $('#region').value;
-  const pool = view === 'plan' ? Object.keys(plan.saved).map(findEntry).sort((a, b) => Number(b.id.startsWith('custom-')) - Number(a.id.startsWith('custom-'))) : data.entries;
+  const pool = linkedID ? data.entries.filter(e => e.id === linkedID) : starter ? starters[starter].ids.map(findEntry) : view === 'plan' ? Object.keys(plan.saved).map(findEntry).sort((a, b) => Number(b.id.startsWith('custom-')) - Number(a.id.startsWith('custom-'))) : data.entries;
   const entries = archivedReading && view === 'all' ? [archivedReading] : pool.filter(e =>
     (!section || e.section === section) && (category === 'all' || categories[category]?.includes(e.section))
     && (!basis || e.basis === basis)
@@ -151,6 +177,18 @@ function render() {
     && (!query || [e.title, e.summary, e.steps, e.notes].join(' ').toLocaleLowerCase('ru').includes(query))
     && (view !== 'plan' || status === 'all' || (status === 'done' ? plan.saved[e.id] : !plan.saved[e.id])));
   $('#cards').replaceChildren(...entries.slice(0, limit).map(card));
+  for (const node of $('#cards').children) {
+    const details = node.querySelector('details');
+    if (details && expandedCards.has(node.dataset.id)) details.open = true;
+  }
+  if (activeCard) {
+    const replacement = [...$('#cards').children].find(node => node.dataset.id === activeCard.dataset.id);
+    const target = replacement ? (replacement.querySelectorAll(focusables)[focusIndex] || replacement)
+      : $('#cards').children[Math.min(oldIndex, $('#cards').children.length - 1)] || $('#search');
+    target.focus({ preventScroll: true });
+  }
+  $('#selection-bar').hidden = !starter && !linkedID;
+  $('#selection-title').textContent = starter ? starters[starter].title + ' · 3 шага' : 'Совет по ссылке';
   $('#result-count').textContent = `Найдено: ${entries.length}`;
   $('#load-more').hidden = entries.length <= limit; $('#empty').hidden = entries.length > 0;
   $('#empty-message').textContent = view === 'plan' && !Object.keys(plan.saved).length ? 'Добавляйте советы в план или запишите своё дело выше.' : 'Попробуйте другой запрос, регион или сбросьте фильтры.';
@@ -159,9 +197,15 @@ function render() {
 function syncControls() {
   document.querySelectorAll('[data-view]').forEach(b => { b.classList.toggle('active', b.dataset.view === view); b.setAttribute('aria-pressed', String(b.dataset.view === view)); });
   for (const [key, value] of [['category', category], ['status', status]]) document.querySelectorAll(`[data-${key}]`).forEach(b => b.classList.toggle('active', b.dataset[key] === value));
+  $('#starter-guide').hidden = view !== 'all';
   $('#plan-tools').hidden = view !== 'plan'; $('#view-title').textContent = view === 'plan' ? 'Маленькие шаги, ваш ритм.' : 'Что сделаем для себя?';
 }
+function clearSelection() {
+  starter = ''; linkedID = '';
+  if (location.hash.startsWith('#advice=')) history.replaceState(null, '', location.pathname + location.search);
+}
 function resetFilters() {
+  clearSelection();
   category = 'all'; status = 'all'; limit = 18; archivedReading = null;
   for (const selector of ['#search', '#section', '#evidence']) $(selector).value = '';
   $('#region').value = 'all'; syncControls();
@@ -225,12 +269,13 @@ $('#import').addEventListener('change', async event => {
   event.target.value = '';
 });
 for (const type of ['category', 'status']) document.querySelectorAll(`[data-${type}]`).forEach(button => button.addEventListener('click', () => {
+  clearSelection();
   if (type === 'category') category = button.dataset.category; else status = button.dataset.status;
   archivedReading = null; limit = 18; syncControls(); render();
 }));
 document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
-$('#search').addEventListener('input', () => { clearTimeout(searchTimer); searchTimer = setTimeout(() => { archivedReading = null; limit = 18; render(); }, 150); });
-for (const selector of ['#section', '#evidence', '#region']) $(selector).addEventListener('change', () => { archivedReading = null; limit = 18; render(); });
+$('#search').addEventListener('input', () => { clearTimeout(searchTimer); searchTimer = setTimeout(() => { clearSelection(); archivedReading = null; limit = 18; render(); }, 150); });
+for (const selector of ['#section', '#evidence', '#region']) $(selector).addEventListener('change', () => { clearSelection(); archivedReading = null; limit = 18; render(); });
 $('#reset').addEventListener('click', () => { resetFilters(); render(); });
 $('#load-more').addEventListener('click', () => {
   const count = $('#cards').children.length; limit += 18; render(); const next = $('#cards').children[count];
@@ -244,7 +289,7 @@ function rememberReading() {
   const visible = [...document.querySelectorAll('.card')].filter(c => { const r = c.getBoundingClientRect(); return r.bottom > 60 && r.top < innerHeight * .7; });
   if (!visible.length) return;
   const anchor = visible.find(c => c.getBoundingClientRect().top >= 0) || visible[0];
-  const snapshot = { id: anchor.dataset.id, view, category, status, query: $('#search').value, section: $('#section').value,
+  const snapshot = { starter, linkedID, id: anchor.dataset.id, view, category, status, query: $('#search').value, section: $('#section').value,
     evidence: $('#evidence').value, region: $('#region').value, limit,
     open: [...document.querySelectorAll('.card details[open]')].map(d => d.closest('.card').dataset.id),
     offset: Math.round(anchor.getBoundingClientRect().top), updatedAt: new Date().toISOString() };
@@ -258,6 +303,9 @@ function showReading() {
 }
 $('#resume-button').addEventListener('click', () => {
   if (!reading) return; restoring = true; archivedReading = null;
+  clearSelection();
+  starter = Object.hasOwn(starters, reading.starter) ? reading.starter : '';
+  linkedID = data.entries.some(e => e.id === reading.linkedID) ? reading.linkedID : '';
   view = reading.view; category = Object.hasOwn(categories, reading.category) ? reading.category : 'all';
   status = ['all', 'pending', 'done'].includes(reading.status) ? reading.status : 'all';
   $('#search').value = typeof reading.query === 'string' ? reading.query : '';
@@ -288,6 +336,36 @@ addEventListener('scroll', () => { clearTimeout(readingTimer); readingTimer = se
 document.addEventListener('toggle', event => { if (event.target.matches('.card details')) { clearTimeout(readingTimer); readingTimer = setTimeout(rememberReading, 250); } }, true);
 addEventListener('pagehide', rememberReading);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') rememberReading(); });
+function openLinkedCard() {
+  if (!data.entries.length) return;
+  const match = /^#advice=(\d+-\d+)$/.exec(location.hash);
+  if (!location.hash.startsWith('#advice=')) {
+    if (linkedID) { resetFilters(); render(); }
+    return false;
+  }
+  const entry = match && data.entries.find(e => e.id === match[1]);
+  // Reset controls without removing the incoming URL.
+  const hash = location.hash;
+  view = 'all'; resetFilters();
+  history.replaceState(null, '', location.pathname + location.search + hash);
+  if (!entry) { render(); toast('Совет по этой ссылке не найден. Выберите другой из каталога.'); return true; }
+  linkedID = entry.id; render();
+  const node = $('#cards').firstElementChild;
+  node.querySelector('details').open = true;
+  $('#resume-reading').hidden = true;
+  node.focus({ preventScroll: true }); node.scrollIntoView({ block: 'start', behavior: 'instant' });
+  return true;
+}
+addEventListener('hashchange', openLinkedCard);
+$('#show-all').addEventListener('click', () => { resetFilters(); render(); $('#search').focus({ preventScroll: true }); });
+for (const [key, selection] of Object.entries(starters)) {
+  const button = element('button', 'subtle', selection.title); button.type = 'button'; button.dataset.starter = key;
+  button.addEventListener('click', () => {
+    view = 'all'; resetFilters(); starter = key; $('#starter-guide').open = false; render();
+    $('#show-all').focus({ preventScroll: true });
+  });
+  $('#starter-options').append(button);
+}
 async function init() {
   try {
     const response = await fetch('assets/advice.ru.json?v=ru-full-608-1'); if (!response.ok) throw Error('HTTP ' + response.status);
@@ -296,7 +374,7 @@ async function init() {
     for (const section of data.sections) { const option = element('option', '', section.title); option.value = section.id; $('#section').append(option); }
     $('#edition-count').textContent = data.entries.length; $('#topic-count').textContent = data.sections.length;
     $('#archive-summary').textContent = `Все ${data.sourceCount} исходных советов адаптированы и доступны. Ещё ${data.entries.length - data.sourceCount} карточек добавлены для России и Москвы — всего ${data.entries.length} в ${data.sections.length} темах. Обновлено: ${dateLabel(data.reviewedAt)}.`;
-    render(); showReading();
+    render(); if (!openLinkedCard()) showReading();
   } catch (error) {
     $('#result-count').textContent = 'Не удалось загрузить советы'; $('#empty').hidden = false;
     $('#empty-message').textContent = 'Проверьте подключение и обновите страницу. Личный план остаётся в вашем браузере.';
